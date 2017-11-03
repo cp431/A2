@@ -18,11 +18,6 @@
 
 // constants
 #define FIRST 0
-#define RAND_STEP_SIZE 10
-#define ARRAY_A_SIZE 1
-#define SUB_ARRAY_A 2
-#define ARRAY_B_SIZE 3
-#define SUB_ARRAY_B 4
 
 // define a structure to hold subarray data
 typedef struct {
@@ -116,9 +111,6 @@ static void print_array(const int array[], const int array_size)
 /**
   Partitions an array into 4 subarrays, each containing either a list of indicies or a list of displacements
   of two arrays to merge.
-  Ex: a = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
-      b = { 2, 2, 3, 4, 5, 6, 7, 7, 8, 9 }
-      data = {[],[],[],[]}
  
   @param array_size The length of the array
   @param arr_a The first array to merge
