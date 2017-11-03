@@ -309,25 +309,25 @@ int main(int argc, char *argv[]) {
   
   // prevent data broadcast and manipulation until array_data has been calculated
   MPI_Barrier(MPI_COMM_WORLD);
-  MPI_Bcast(array_data->subarray_a_lengths, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
-  MPI_Bcast(array_data->subarray_b_lengths, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
-  MPI_Bcast(array_data->subarray_a_indices, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
-  MPI_Bcast(array_data->subarray_b_indices, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
+  MPI_Bcast(&array_data->subarray_a_lengths[0], num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
+  MPI_Bcast(&array_data->subarray_b_lengths[0], num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
+  MPI_Bcast(&array_data->subarray_a_indices[0], num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
+  MPI_Bcast(&array_data->subarray_b_indices[0], num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
   printf("send\n");
   printf("process: %d size: %d size %d", process_rank, array_data->subarray_a_lengths[0], array_data->subarray_a_indices[0]);
   printf("process: %d size of a: %d size of indices a: %d",process_rank,array_data->subarray_a_lengths[process_rank], array_data->subarray_a_indices[process_rank]); 
   printf("process: %d size of b: %d size of indices b: %d",process_rank,array_data->subarray_b_lengths[process_rank], array_data->subarray_b_indices[process_rank]); 
   // Initialize start time
   
-  start_time = MPI_Wtime(); 
+  //start_time = MPI_Wtime(); 
   
   // return the subarray lengths to each processor dependent on each processors rank
-  int sub_arr_a_recv_count = array_data->subarray_a_lengths[process_rank];
-  int sub_arr_b_recv_count = array_data->subarray_b_lengths[process_rank];
+  //int sub_arr_a_recv_count = array_data->subarray_a_lengths[process_rank];
+  //int sub_arr_b_recv_count = array_data->subarray_b_lengths[process_rank];
   
   // malloc space for each subarrays data as required by each subarrays count as determined above
-  int *sub_arr_a = (int *) malloc(sizeof(int) * sub_arr_a_recv_count);
-  int *sub_arr_b = (int *) malloc(sizeof(int) * sub_arr_b_recv_count);
+  //int *sub_arr_a = (int *) malloc(sizeof(int) * sub_arr_a_recv_count);
+  //int *sub_arr_b = (int *) malloc(sizeof(int) * sub_arr_b_recv_count);
   
   // scatter arr_a across all processors
   //MPI_Scatterv(arr_a, array_data->subarray_a_lengths, array_data->subarray_a_indices, MPI_INT, sub_arr_a, sub_arr_a_recv_count, MPI_INT, FIRST, MPI_COMM_WORLD);
@@ -354,7 +354,7 @@ int main(int argc, char *argv[]) {
   //MPI_Gatherv(sub_arr_c, sub_arr_c_length, MPI_INT, arr_c, sub_arr_c_recv_counts, sub_arr_c_indices, MPI_INT, FIRST, MPI_COMM_WORLD);
   
    // Initialize end time
-  end_time = MPI_Wtime();
+  //end_time = MPI_Wtime();
   
   // root processor prints the two initial arrays as well as the final, parallely sorted array
   /*
