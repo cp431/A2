@@ -224,24 +224,22 @@ int main(int argc, char *argv[])
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &process_rank);
   MPI_Comm_size(MPI_COMM_WORLD, &num_processors);
-  // Only process 0 needs to generate the two arrays
   
-  int array_size = 10;
-  int arr_a[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-  int arr_b[10] = {2, 2, 3, 4, 5, 5, 6, 7, 8, 9};
+  if (argc < 2)
+  {
+      if (process_rank == FIRST)
+        printf("ERROR: Missing array length exponent. Usage: ./a2 [array length exponent]\n");
+      
+      MPI_Finalize();
+      return 0;
+  }
+  
+  int array_size = pow(atoi(argv[1]));
+  int *arr_a = calloc(array_size, sizeof(int));
+  int *arr_b = calloc(array_size, sizeof(int));
+  
   array_info *array_data = (array_info *)malloc(sizeof(array_info));
   partition_data(array_size, arr_a, arr_b, num_processors, array_data);
-  
-  if (process_rank == FIRST) {
-      // TODO: int array_size = atoi(argv[1]);
-      //int arr_a[array_size];
-      //int arr_b[array_size];
-      //gen_arrays(arr_a, arr_b, array_size);
-      //printf("Num processors: %d\n", num_processors);
-      printf("%d\n", array_data->subarray_a_lengths[0]);
-      printf("%d\n", array_data->subarray_a_lengths[1]);
-      printf("%d\n", array_data->subarray_a_lengths[2]);
-  }
   
   int sub_arr_a_recv_count = array_data->subarray_a_lengths[process_rank];
   int sub_arr_b_recv_count = array_data->subarray_b_lengths[process_rank];
@@ -275,7 +273,16 @@ int main(int argc, char *argv[])
   MPI_Gatherv(sub_arr_c, sub_arr_c_length, MPI_INT, arr_c, sub_arr_c_recv_counts, sub_arr_c_indices, MPI_INT, FIRST, MPI_COMM_WORLD);
   
   if (process_rank == FIRST)
+  {
+    printf("Array A: ");
+    print_array(arr_a, array_size);
+    
+    printf("Array B: ");
+    print_array(arr_b, array_size);
+    
+    printf("Array C: ");
     print_array(arr_c, array_size * 2);
+  }
   
   free(sub_arr_c_recv_counts);
   free(sub_arr_c_indices);
@@ -287,6 +294,8 @@ int main(int argc, char *argv[])
   free(sub_arr_a);
   free(sub_arr_b);
   free(sub_arr_c);
+  free(arr_a);
+  free(arr_b);
   free(arr_c);
   
   MPI_Finalize();
