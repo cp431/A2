@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
     printf("Array C: ");
     print_array(arr_c, array_size * 2);
     
-    printf("\nIs sorted: %d", is_sorted(arr_c, array_size));
+    printf("\nIs sorted: %d\n", is_sorted(arr_c, array_size));
   }
   
   free(sub_arr_c_recv_counts);
