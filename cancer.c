@@ -187,10 +187,7 @@ static void partition_data(const int array_size, int* arr_a, int* arr_b, int num
     data->subarray_b_indices = arr_b_indices;
 }
 
-static int* merge_arrays(int *sub_arr_a, int *sub_arr_b, int size_a, int size_b) {
-    const int array_size = size_a + size_b;
-      
-    int *array = calloc(array_size, sizeof(int));
+static void merge_arrays(int *sub_arr_a, int *sub_arr_b, int *sub_arr_c, int size_a, int size_b) {
     int array_index = 0, i = 0, j = 0;
       
     while (i < size_a && j < size_b)
@@ -207,7 +204,6 @@ static int* merge_arrays(int *sub_arr_a, int *sub_arr_b, int size_a, int size_b)
     if (j == size_b)
       while (i < size_a)
             array[array_index++] = sub_arr_a[i++];
-    return array;
 }
 
 int main(int argc, char *argv[])
@@ -259,6 +255,30 @@ int main(int argc, char *argv[])
   // Scatter arr_b across all procs
   MPI_Scatterv(arr_b, array_data->subarray_b_lengths, array_data->subarray_b_indices, MPI_INT, sub_arr_b, sub_arr_b_recv_count, MPI_INT, FIRST, MPI_COMM_WORLD);
   
+  // Merge sub_arr_a and sub_arr_b into sub_arr_c
+  int sub_arr_c_length = sub_arr_a_recv_count + sub_arr_b_recv_count;
+  int *sub_arr_c = (int *)malloc(sizeof(int) * sub_arr_c_length);
+  merge_arrays(sub_arr_a, sub_arr_b, sub_arr_c, sub_arr_a_recv_count, sub_arr_b_recv_count);
+  
+  // Gather all sub_arr_c instances back to the root process
+  int *arr_c = (int *)malloc(sizeof(int) * (array_size * 2));
+  
+  int *sub_arr_c_recv_counts = (int *)malloc(sizeof(int) * (num_processes));
+  int *sub_arr_c_indices = (int *)malloc(sizeof(int) * num_processes);
+  
+  for (int i = 0; i < num_processes; ++i)
+  {
+      sub_arr_c_recv_counts[i] = array_data->sub_array_a_lengths[i] + array_data->sub_array_b_lengths[i];
+      sub_arr_c_indices[i] = array_data->sub_array_a_indices[i] + array_data->sub_array_b_indices[i];
+  }
+  
+  MPI_Gatherv(sub_arr_c, sub_arr_c_length, MPI_INT, arr_c, sub_arr_c_recv_counts, sub_arr_c_indices, MPI_INT, FIRST, MPI_COMM_WORLD);
+  
+  if (process_rank == FIRST)
+    print_array(arr_c, array_size * 2);
+  
+  free(sub_arr_c_recv_counts);
+  free(sub_arr_c_indices);
   free(array_data->subarray_a_lengths);
   free(array_data->subarray_a_indices);
   free(array_data->subarray_b_indices);
@@ -266,6 +286,8 @@ int main(int argc, char *argv[])
   free(array_data);
   free(sub_arr_a);
   free(sub_arr_b);
+  free(sub_arr_c);
+  free(arr_c);
   
   MPI_Finalize();
   return 0;
