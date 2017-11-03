@@ -125,10 +125,10 @@ static void partition_data(const int array_size, int* arr_a, int* arr_b, int num
     int *arr_a_size, *arr_b_size, *arr_a_indices, *arr_b_indices;
     
     // malloc space fore each array
-    arr_a_size = (int*)calloc(num_processors, sizeof(int));
-    arr_b_size = (int*)calloc(num_processors, sizeof(int));
-    arr_a_indices = (int*)calloc(num_processors, sizeof(int));
-    arr_b_indices = (int*)calloc(num_processors, sizeof(int));
+    arr_a_size = (int*)malloc(num_processors * sizeof(int));
+    arr_b_size = (int*)malloc(num_processors * sizeof(int));
+    arr_a_indices = (int*)malloc(num_processors * sizeof(int));
+    arr_b_indices = (int*)malloc(num_processors * sizeof(int));
     
     // determine the remainder to be used for load balancing
     int remainder = array_size % num_processors;
@@ -294,8 +294,8 @@ int main(int argc, char *argv[]) {
   
   if (process_rank == FIRST) {
     // malloc space for the arrays to sort
-    arr_a = calloc(array_size, sizeof(int));
-    arr_b = calloc(array_size, sizeof(int));
+    arr_a = malloc(array_size * sizeof(int));
+    arr_b = malloc(array_size * sizeof(int));
     // generates two random arrays based on user defined array_size
     gen_arrays(arr_a, arr_b, array_size);
     // partition the data determine indicies and displacements of each array (returned in array_data)
@@ -371,7 +371,7 @@ int main(int argc, char *argv[]) {
       printf("Is sorted: False\n");
   }
   
-  // free all space malloced/calloced for arrays and data structures
+  // free all space malloced for arrays and data structures
   if (process_rank == FIRST) { free(arr_a); free(arr_b); }
   free(sub_arr_c_recv_counts);
   free(sub_arr_c_indices);
