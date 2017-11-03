@@ -313,13 +313,15 @@ int main(int argc, char *argv[]) {
   MPI_Bcast(array_data->subarray_b_lengths, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
   MPI_Bcast(array_data->subarray_a_indices, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
   MPI_Bcast(array_data->subarray_b_indices, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
-  // Initialize start time
-  
-  start_time = MPI_Wtime(); 
+
   
   // return the subarray lengths to each processor dependent on each processors rank
   int sub_arr_a_recv_count = array_data->subarray_a_lengths[process_rank];
   int sub_arr_b_recv_count = array_data->subarray_b_lengths[process_rank];
+    
+  // Initialize start time
+  MPI_Barrier(MPI_COMM_WORLD);
+  start_time = MPI_Wtime(); 
   
   // malloc space for each subarrays data as required by each subarrays count as determined above
   int *sub_arr_a = (int *) malloc(sizeof(int) * sub_arr_a_recv_count);
