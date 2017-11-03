@@ -255,13 +255,13 @@ int main(int argc, char *argv[])
   // Initialize start/end time 
   double start_time = 0.0;
   double end_time = 0.0;
+ 
+  gen_arrays(arr_a, arr_b, array_size);
   
   // Wait for all processes to finish initialization
   MPI_Barrier(MPI_COMM_WORLD);
   // Initialize start time
   start_time = MPI_Wtime();   
-  
-  gen_arrays(arr_a, arr_b, array_size);
   
   array_info *array_data = (array_info *)malloc(sizeof(array_info));
   partition_data(array_size, arr_a, arr_b, num_processors, array_data);
