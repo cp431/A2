@@ -125,10 +125,10 @@ static void partition_data(const int array_size, int* arr_a, int* arr_b, int num
     int *arr_a_size, *arr_b_size, *arr_a_indices, *arr_b_indices;
     
     // malloc space fore each array
-    arr_a_size = (int*)malloc(num_processors * sizeof(int));
-    arr_b_size = (int*)malloc(num_processors * sizeof(int));
-    arr_a_indices = (int*)malloc(num_processors * sizeof(int));
-    arr_b_indices = (int*)malloc(num_processors * sizeof(int));
+    arr_a_size = (int*)malloc(num_processors);
+    arr_b_size = (int*)malloc(num_processors);
+    arr_a_indices = (int*)malloc(num_processors);
+    arr_b_indices = (int*)malloc(num_processors);
     
     // determine the remainder to be used for load balancing
     int remainder = array_size % num_processors;
@@ -294,8 +294,8 @@ int main(int argc, char *argv[]) {
   
   if (process_rank == FIRST) {
     // malloc space for the arrays to sort
-    arr_a = malloc(array_size * sizeof(int));
-    arr_b = malloc(array_size * sizeof(int));
+    arr_a = (int*)malloc(array_size);
+    arr_b = (int*)malloc(array_size);
     // generates two random arrays based on user defined array_size
     gen_arrays(arr_a, arr_b, array_size);
     // partition the data determine indicies and displacements of each array (returned in array_data)
@@ -322,8 +322,8 @@ int main(int argc, char *argv[]) {
   int sub_arr_b_recv_count = array_data->subarray_b_lengths[process_rank];
   
   // malloc space for each subarrays data as required by each subarrays count as determined above
-  int *sub_arr_a = (int *) malloc(sizeof(int) * sub_arr_a_recv_count);
-  int *sub_arr_b = (int *) malloc(sizeof(int) * sub_arr_b_recv_count);
+  int *sub_arr_a = (int *) malloc(sub_arr_a_recv_count);
+  int *sub_arr_b = (int *) malloc(sub_arr_b_recv_count);
   
   // scatter arr_a across all processors
   MPI_Scatterv(arr_a, array_data->subarray_a_lengths, array_data->subarray_a_indices, MPI_INT, sub_arr_a, sub_arr_a_recv_count, MPI_INT, FIRST, MPI_COMM_WORLD);
@@ -332,13 +332,13 @@ int main(int argc, char *argv[]) {
   
   // merge sub_arr_a and sub_arr_b into sub_arr_c
   int sub_arr_c_length = sub_arr_a_recv_count + sub_arr_b_recv_count;
-  int *sub_arr_c = (int *)malloc(sizeof(int) * sub_arr_c_length);
+  int *sub_arr_c = (int *)malloc(sub_arr_c_length);
   merge_arrays(sub_arr_a, sub_arr_b, sub_arr_c, sub_arr_a_recv_count, sub_arr_b_recv_count);
   
   // malloc space for the indices and displacements for our newly generated subarray c
-  int *arr_c = (int *)malloc(sizeof(int) * (array_size * 2));
-  int *sub_arr_c_recv_counts = (int *)malloc(sizeof(int) * num_processors);
-  int *sub_arr_c_indices = (int *)malloc(sizeof(int) * num_processors);
+  int *arr_c = (int *)malloc(array_size * 2);
+  int *sub_arr_c_recv_counts = (int *)malloc(num_processors);
+  int *sub_arr_c_indices = (int *)malloc(num_processors);
   // populate the subarray indices and displacements based on each processors subarray a, subarray b, and processor rank
   for (int i = 0; i < num_processors; ++i)
   {
