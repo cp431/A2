@@ -18,6 +18,11 @@
 
 // constants
 #define FIRST 0
+#define RAND_STEP_SIZE 10
+#define ARRAY_A_SIZE 1
+#define SUB_ARRAY_A 2
+#define ARRAY_B_SIZE 3
+#define SUB_ARRAY_B 4
 
 // define a structure to hold subarray data
 typedef struct {
@@ -111,6 +116,9 @@ static void print_array(const int array[], const int array_size)
 /**
   Partitions an array into 4 subarrays, each containing either a list of indicies or a list of displacements
   of two arrays to merge.
+  Ex: a = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
+      b = { 2, 2, 3, 4, 5, 6, 7, 7, 8, 9 }
+      data = {[],[],[],[]}
  
   @param array_size The length of the array
   @param arr_a The first array to merge
@@ -233,6 +241,23 @@ static void merge_arrays(int *sub_arr_a, int *sub_arr_b, int *sub_arr_c, int siz
             sub_arr_c[array_index++] = sub_arr_a[i++];
 }
 
+/**
+  Traverses array to assert that it is sorted in ascending order.
+  Used to verify that the final array is sorted at the end of the algorithm. 
+  
+  @param array The array to be checked
+  @param size The length of the array
+*/
+int is_sorted(int *array, int size)
+{
+  int i = 0; 
+  for (; i < size - 1; i++)
+  {
+    if (array[i] > array[i + 1])
+        return 0;
+  }
+  return 1;
+}
 
 /***************  MAIN PROGRAM ***************/
 int main(int argc, char *argv[]) {
@@ -260,6 +285,9 @@ int main(int argc, char *argv[]) {
       MPI_Finalize();
       return 0;
   }
+  // Initialize start/end time 
+  double start_time = 0.0;
+  double end_time = 0.0;
   
   // determine the array_size (dependent on user input)
   int array_size = pow(2, atoi(argv[1]));
@@ -269,6 +297,11 @@ int main(int argc, char *argv[]) {
   
   // generates two random arrays based on user defined array_size
   gen_arrays(arr_a, arr_b, array_size);
+  
+  // Wait for all processes to finish initialization
+  MPI_Barrier(MPI_COMM_WORLD);
+  // Initialize start time
+  start_time = MPI_Wtime(); 
   
   // malloc space for the data structure to hold indicies and displacements of each array
   array_info *array_data = (array_info *)malloc(sizeof(array_info));
@@ -308,6 +341,9 @@ int main(int argc, char *argv[]) {
   // gather all sub_arr_c instances back to the root process
   MPI_Gatherv(sub_arr_c, sub_arr_c_length, MPI_INT, arr_c, sub_arr_c_recv_counts, sub_arr_c_indices, MPI_INT, FIRST, MPI_COMM_WORLD);
   
+   // Initialize end time
+  end_time = MPI_Wtime();
+  
   // root processor prints the two initial arrays as well as the final, parallely sorted array
   if (process_rank == FIRST)
   {
@@ -319,6 +355,9 @@ int main(int argc, char *argv[]) {
     
     printf("Array C: ");
     print_array(arr_c, array_size * 2);
+    
+    printf("Wallclock time elapsed: %.2lf seconds\n", end_time - start_time);
+    printf("Is sorted: %d\n", is_sorted(arr_c, array_size));
   }
   
   // free all space malloced/calloced for arrays and data structures
