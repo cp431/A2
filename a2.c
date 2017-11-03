@@ -302,10 +302,10 @@ int main(int argc, char *argv[]) {
     partition_data(array_size, arr_a, arr_b, num_processors, array_data);
   } else {
     // allocate necessary memory for data for each sub array for each process that is not the first process
-    array_data->subarray_a_lengths = (int*)malloc(num_processors);
-    array_data->subarray_b_lengths = (int*)malloc(num_processors);
-    array_data->subarray_a_indices = (int*)malloc(num_processors);
-    array_data->subarray_b_indices = (int*)malloc(num_processors);
+    array_data->subarray_a_lengths = (int*)malloc(num_processors * sizeof(int));
+    array_data->subarray_b_lengths = (int*)malloc(num_processors * sizeof(int));
+    array_data->subarray_a_indices = (int*)malloc(num_processors * sizeof(int));
+    array_data->subarray_b_indices = (int*)malloc(num_processors * sizeof(int));
   }
   // prevent data broadcast and manipulation until array_data has been calculated
   MPI_Barrier(MPI_COMM_WORLD);
