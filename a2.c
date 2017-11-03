@@ -301,6 +301,9 @@ int main(int argc, char *argv[]) {
     // partition the data determine indicies and displacements of each array (returned in array_data)
     partition_data(array_size, arr_a, arr_b, num_processors, array_data);
     printf("process: %d size: %d size %d", process_rank, array_data->subarray_a_lengths[0], array_data->subarray_a_indices[0]);
+    printf("process: %d size: %d size %d", process_rank, array_data->subarray_a_lengths[1], array_data->subarray_a_indices[1]);
+    printf("process: %d size: %d size %d", process_rank, array_data->subarray_a_lengths[2], array_data->subarray_a_indices[2]);
+    printf("process: %d size: %d size %d", process_rank, array_data->subarray_a_lengths[3], array_data->subarray_a_indices[3]);
 
   }
   
