@@ -24,7 +24,8 @@
 #define ARRAY_B_SIZE 3
 #define SUB_ARRAY_B 4
 
-typedef struct {
+typedef struct 
+{
   int *subarray_a_lengths;
   int *subarray_b_lengths;
   int *subarray_a_indices;
@@ -71,7 +72,6 @@ static int binary_search(const int array[], const int num_to_find, const int arr
       
         midpoint = floor((first_index + last_index) / 2);
     }
-  
     return midpoint;
 }
 
@@ -210,6 +210,13 @@ static void merge_arrays(int *sub_arr_a, int *sub_arr_b, int *sub_arr_c, int siz
             sub_arr_c[array_index++] = sub_arr_a[i++];
 }
 
+/**
+  Traverses array to assert that it is sorted in ascending order.
+  Used to verify that the final array is sorted at the end of the algorithm. 
+  
+  @param array The array to be printed
+  @param array_size The length of the array
+*/
 int is_sorted(int *array, int size)
 {
   int i = 0; 
@@ -247,6 +254,15 @@ int main(int argc, char *argv[])
   int *arr_a = calloc(array_size, sizeof(int));
   int *arr_b = calloc(array_size, sizeof(int));
   
+  // Initialize start/end time 
+  double start_time = 0.0;
+  double end_time = 0.0;
+  
+  // Wait for all processes to finish initialization
+  MPI_Barrier(MPI_COMM_WORLD);
+  // Initialize start time
+  start_time = MPI_Wtime();   
+  
   gen_arrays(arr_a, arr_b, array_size);
   
   array_info *array_data = (array_info *)malloc(sizeof(array_info));
@@ -283,6 +299,9 @@ int main(int argc, char *argv[])
   
   MPI_Gatherv(sub_arr_c, sub_arr_c_length, MPI_INT, arr_c, sub_arr_c_recv_counts, sub_arr_c_indices, MPI_INT, FIRST, MPI_COMM_WORLD);
   
+  // Initialize end time
+  end_time = MPI_Wtime();
+  
   if (process_rank == FIRST)
   {
     printf("Array A: ");
@@ -294,6 +313,7 @@ int main(int argc, char *argv[])
     printf("Array C: ");
     print_array(arr_c, array_size * 2);
     
+    printf("Wallclock time elapsed: %.2lf seconds\n", end_time - start_time);
     printf("Is sorted: %d\n", is_sorted(arr_c, array_size));
   }
   
