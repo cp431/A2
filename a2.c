@@ -285,22 +285,28 @@ int main(int argc, char *argv[]) {
   // determine the array_size (dependent on user input)
   int array_size = pow(2, atoi(argv[1]));
   // calloc space for the arrays to sort
-  int *arr_a = calloc(array_size, sizeof(int));
-  int *arr_b = calloc(array_size, sizeof(int));
-  
-  // generates two random arrays based on user defined array_size
-  gen_arrays(arr_a, arr_b, array_size);
-  
-  // Wait for all processes to finish initialization
-  MPI_Barrier(MPI_COMM_WORLD);
-  // Initialize start time
-  start_time = MPI_Wtime(); 
-  
+
   // malloc space for the data structure to hold indicies and displacements of each array
   array_info *array_data = (array_info *)malloc(sizeof(array_info));
   
-  // partition the data determine indicies and displacements of each array (returned in array_data)
-  partition_data(array_size, arr_a, arr_b, num_processors, array_data);
+  if (processor_rank == FIRST) {
+    int *arr_a = calloc(array_size, sizeof(int));
+    int *arr_b = calloc(array_size, sizeof(int));
+    // generates two random arrays based on user defined array_size
+    gen_arrays(arr_a, arr_b, array_size);
+    // partition the data determine indicies and displacements of each array (returned in array_data)
+    partition_data(array_size, arr_a, arr_b, num_processors, array_data);
+  }
+  
+  // prevent data broadcast and manipulation until array_data has been calculated
+  MPI_Barrier();
+  MPI_Bcast(array_data->subarray_a_lengths, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD)
+  MPI_Bcast(array_data->subarray_b_lengths, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD)
+  MPI_Bcast(array_data->subarray_a_indices, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD)
+  MPI_Bcast(array_data->subarray_b_indices, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD)
+  
+  // Initialize start time
+  start_time = MPI_Wtime(); 
   
   // return the subarray lengths to each processor dependent on each processors rank
   int sub_arr_a_recv_count = array_data->subarray_a_lengths[process_rank];
