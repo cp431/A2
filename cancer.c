@@ -280,8 +280,6 @@ int main(int argc, char *argv[])
       printf("%d\n", array_data->subarray_a_lengths[0]);
       printf("%d\n", array_data->subarray_a_lengths[1]);
       printf("%d\n", array_data->subarray_a_lengths[2]);
-      
-      free(array_data);
   }
   
   int sub_arr_a_recv_count = array_data->subarray_a_lengths[process_rank];
@@ -296,6 +294,11 @@ int main(int argc, char *argv[])
   // Scatter arr_b across all procs
   MPI_Scatterv(arr_b, array_data->subarray_b_lengths, array_data->subarray_b_indices, MPI_INT, sub_arr_b, sub_arr_b_recv_count, MPI_INT, FIRST, MPI_COMM_WORLD);
   
+  free(array_data->subarray_a_lengths);
+  free(array_data->subarray_a_indices);
+  free(array_data->subarray_b_indices);
+  free(array_data->subarray_b_lengths);
+  free(array_data);
   free(sub_arr_a);
   free(sub_arr_b);
   
