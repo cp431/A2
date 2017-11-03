@@ -1,8 +1,8 @@
-cancer:	cancer.o
-	mpicc cancer.o -o cancer
+a2:	a2.o
+	mpicc a2.o -o a2
 
-cancer.o: cancer.c
-	mpicc -c -std=c99 cancer.c
+a2.o: cancer.c
+	mpicc -c -std=c99 a2.c
 
 clean: 
-	rm cancer.o cancer
+	rm a2.o a2
