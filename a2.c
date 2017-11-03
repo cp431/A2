@@ -365,7 +365,10 @@ int main(int argc, char *argv[]) {
     //print_array(arr_c, array_size * 2);
     
     printf("Wallclock time elapsed: %.9lf seconds\n", end_time - start_time);
-    printf("Is sorted: %d\n", is_sorted(arr_c, array_size) != 0);
+    if (is_sorted(arr_c, array_size) != 0)
+      printf("Is sorted: True\n");
+    else
+      printf("Is sorted: False\n");
   }
   
   // free all space malloced/calloced for arrays and data structures
