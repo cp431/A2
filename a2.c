@@ -348,7 +348,7 @@ int main(int argc, char *argv[]) {
     printf("Array C: ");
     print_array(arr_c, array_size * 2);
     
-    printf("Wallclock time elapsed: %.2lf seconds\n", end_time - start_time);
+    printf("Wallclock time elapsed: %.9lf seconds\n", end_time - start_time);
     printf("Is sorted: %d\n", is_sorted(arr_c, array_size));
   }
   
