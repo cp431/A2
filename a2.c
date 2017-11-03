@@ -127,7 +127,8 @@ static void partition_data(const int array_size, int* arr_a, int* arr_b, int num
     // case 1: if no remainder of division, add value to arr_a_size array
     // case 2: if remainder, add value + 1 to arr_a_size and decrement remainder
     // result: arr_a_size contains all sub-array displacements of array a
-    for (int i = num_processors - 1; i > -1; --i) {
+    for (int i = num_processors - 1; i > -1; --i) 
+    {
         arr_a_size[i] = array_size / num_processors;
         if (remainder > 0) {
           arr_a_size[i] += 1;
@@ -142,7 +143,8 @@ static void partition_data(const int array_size, int* arr_a, int* arr_b, int num
     int start = 0;
     int index;
     arr_a_indices[0] = start;
-    for (int i = 1; i < num_processors; i++) {
+    for (int i = 1; i < num_processors; i++) 
+    {
       index = arr_a_size[i-1] + arr_a_indices[i-1];
       arr_a_indices[i] = index;
     }
@@ -154,7 +156,8 @@ static void partition_data(const int array_size, int* arr_a, int* arr_b, int num
     int index_of_key;
     int key;
     int size;
-    for (int i = 0; i < num_processors; i++) {
+    for (int i = 0; i < num_processors; i++) 
+    {
         index_of_key = arr_a_size[i] + arr_a_indices[i] - 1;
         key = arr_a[index_of_key];
         index = binary_search(arr_b, key, array_size);
@@ -187,7 +190,8 @@ static void partition_data(const int array_size, int* arr_a, int* arr_b, int num
     data->subarray_b_indices = arr_b_indices;
 }
 
-static void merge_arrays(int *sub_arr_a, int *sub_arr_b, int *sub_arr_c, int size_a, int size_b) {
+static void merge_arrays(int *sub_arr_a, int *sub_arr_b, int *sub_arr_c, int size_a, int size_b) 
+{
     int array_index = 0, i = 0, j = 0;
       
     while (i < size_a && j < size_b)
@@ -206,14 +210,19 @@ static void merge_arrays(int *sub_arr_a, int *sub_arr_b, int *sub_arr_c, int siz
             sub_arr_c[array_index++] = sub_arr_a[i++];
 }
 
+int is_sorted(int *array, int size)
+{
+  int i = 0; 
+  for (; i < size - 1; i++)
+  {
+    if (array[i] > array[i + 1])
+        return 0;
+  }
+  return 1;
+}
+
 int main(int argc, char *argv[])
 {
-  /*if (argc < 2)
-  {
-      printf("ERROR: Missing array length. Usage: ./a2 [array length]\n");
-      return -1;
-  }*/
-  
   MPI_Status status;
   MPI_Request request;
   
@@ -284,6 +293,8 @@ int main(int argc, char *argv[])
     
     printf("Array C: ");
     print_array(arr_c, array_size * 2);
+    
+    printf("\nIs sorted: %d", is_sorted(arr_c, array_size));
   }
   
   free(sub_arr_c_recv_counts);
