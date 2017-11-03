@@ -300,14 +300,16 @@ int main(int argc, char *argv[]) {
     gen_arrays(arr_a, arr_b, array_size);
     // partition the data determine indicies and displacements of each array (returned in array_data)
     partition_data(array_size, arr_a, arr_b, num_processors, array_data);
+    printf("process: %d size: %d size %d", process_rank, array_data->subarray_a_lengths[0], array_data->subarray_a_indices[0]);
+
   }
   
   // prevent data broadcast and manipulation until array_data has been calculated
   MPI_Barrier(MPI_COMM_WORLD);
-  MPI_Bcast(&array_data->subarray_a_lengths[0], num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
-  MPI_Bcast(&array_data->subarray_b_lengths[0], num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
-  MPI_Bcast(&array_data->subarray_a_indices[0], num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
-  MPI_Bcast(&array_data->subarray_b_indices[0], num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
+  MPI_Bcast(&array_data->subarray_a_lengths, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
+  MPI_Bcast(&array_data->subarray_b_lengths, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
+  MPI_Bcast(&array_data->subarray_a_indices, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
+  MPI_Bcast(&array_data->subarray_b_indices, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
   printf("send\n");
   printf("process: %d size: %d size %d", process_rank, array_data->subarray_a_lengths[0], array_data->subarray_a_indices[0]);
   printf("process: %d size of a: %d size of indices a: %d",process_rank,array_data->subarray_a_lengths[process_rank], array_data->subarray_a_indices[process_rank]); 
