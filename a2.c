@@ -372,7 +372,6 @@ int main(int argc, char *argv[]) {
   }
   
   // free all space malloced/calloced for arrays and data structures
-  /*
   if (process_rank == FIRST) { free(arr_a); free(arr_b); }
   free(sub_arr_c_recv_counts);
   free(sub_arr_c_indices);
@@ -385,7 +384,6 @@ int main(int argc, char *argv[]) {
   free(sub_arr_b);
   free(sub_arr_c);
   free(arr_c);
-  */
   // finalize the MPI process
   MPI_Finalize();
   return 0;
