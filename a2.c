@@ -8,7 +8,7 @@
   -> Gareth Sharpe	090361370
 */
 
-// Includes
+// includes
 #include "mpi.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +16,7 @@
 #include <time.h>
 #include <math.h>
 
-// CONSTANTS
+// constants
 #define FIRST 0
 #define RAND_STEP_SIZE 10
 #define ARRAY_A_SIZE 1
@@ -24,8 +24,8 @@
 #define ARRAY_B_SIZE 3
 #define SUB_ARRAY_B 4
 
-typedef struct 
-{
+// define a structure to hold subarray data
+typedef struct {
   int *subarray_a_lengths;
   int *subarray_b_lengths;
   int *subarray_a_indices;
@@ -70,6 +70,7 @@ static int binary_search(const int array[], const int num_to_find, const int arr
       
         midpoint = floor((first_index + last_index) / 2);
     }
+  
     return midpoint;
 }
 
@@ -111,13 +112,32 @@ static void print_array(const int array[], const int array_size)
     printf("%d\n", array[array_size - 1]);
 }
 
+
+/**
+  Partitions an array into 4 subarrays, each containing either a list of indicies or a list of displacements
+  of two arrays to merge.
+  Ex: a = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
+      b = { 2, 2, 3, 4, 5, 6, 7, 7, 8, 9 }
+      data = {[],[],[],[]}
+ 
+  @param array_size The length of the array
+  @param arr_a The first array to merge
+  @param arr_b The second array to merge
+  @param num_processors The number of designated processors
+  @param data A structure to hold the indicies and displacements based on arr_a and arr_b
+*/
 static void partition_data(const int array_size, int* arr_a, int* arr_b, int num_processors, array_info *data) 
 {
+    // initialize arrays to return data
     int *arr_a_size, *arr_b_size, *arr_a_indices, *arr_b_indices;
+    
+    // malloc space fore each array
     arr_a_size = (int*)calloc(num_processors, sizeof(int));
     arr_b_size = (int*)calloc(num_processors, sizeof(int));
     arr_a_indices = (int*)calloc(num_processors, sizeof(int));
     arr_b_indices = (int*)calloc(num_processors, sizeof(int));
+    
+    // determine the remainder to be used for load balancing
     int remainder = array_size % num_processors;
     
     // determines the sizes required for each subarray of array a
@@ -125,8 +145,7 @@ static void partition_data(const int array_size, int* arr_a, int* arr_b, int num
     // case 1: if no remainder of division, add value to arr_a_size array
     // case 2: if remainder, add value + 1 to arr_a_size and decrement remainder
     // result: arr_a_size contains all sub-array displacements of array a
-    for (int i = num_processors - 1; i > -1; --i) 
-    {
+    for (int i = num_processors - 1; i > -1; --i) {
         arr_a_size[i] = array_size / num_processors;
         if (remainder > 0) {
           arr_a_size[i] += 1;
@@ -141,8 +160,7 @@ static void partition_data(const int array_size, int* arr_a, int* arr_b, int num
     int start = 0;
     int index;
     arr_a_indices[0] = start;
-    for (int i = 1; i < num_processors; i++) 
-    {
+    for (int i = 1; i < num_processors; i++) {
       index = arr_a_size[i-1] + arr_a_indices[i-1];
       arr_a_indices[i] = index;
     }
@@ -154,25 +172,28 @@ static void partition_data(const int array_size, int* arr_a, int* arr_b, int num
     int index_of_key;
     int key;
     int size;
-    for (int i = 0; i < num_processors; i++) 
-    {
+    for (int i = 0; i < num_processors; i++) {
         index_of_key = arr_a_size[i] + arr_a_indices[i] - 1;
         key = arr_a[index_of_key];
+        // binary search for the last occurance of key
+        // if not found, returns the next closest value below key
         index = binary_search(arr_b, key, array_size);
         if (index > 0) {
+            // if the index is found, store the starting index for the subarray
+            // as well as its size (displacement)
             size = index + 1 - start;
             arr_b_indices[i] = start;
             arr_b_size[i] = size;
             start = index + 1;
         } else if (index == -1) {
-            int size = 0;
             arr_b_indices[i] = start;
-            arr_b_size[i] = size;
+            arr_b_size[i] = 0;
         }
-        index = index + arr_a_size[i+1];
+        // increment the index by the size of the next subarray of a
+        index += arr_a_size[i+1];
     }
     
-    // malloc memory for array_data struct
+    // malloc memory for array_data struct based on the size of each subarray
     size_t size_of_array = (sizeof *data->subarray_a_lengths) * num_processors;
    
     // malloc memory for each attribute of array_data struct
@@ -188,8 +209,20 @@ static void partition_data(const int array_size, int* arr_a, int* arr_b, int num
     data->subarray_b_indices = arr_b_indices;
 }
 
-static void merge_arrays(int *sub_arr_a, int *sub_arr_b, int *sub_arr_c, int size_a, int size_b) 
-{
+
+/**
+  Merges two sorted (sub)arrays together in sorted order
+  Ex: a = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
+      b = { 2, 2, 3, 4, 5, 6, 7, 7, 8, 9 }
+      c = { 1, 2, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7, 8, 8, 9, 9, 10}
+ 
+  @param sub_arr_a The first array to merge
+  @param sub_arr_b The second array to merge
+  @param sub_arr_c The array to store the sorted merge of sub_arr_a and sub_arry_b
+  @param size_a Length of sub_arr_a
+  @param size_b Length of sub_arr_b
+*/
+static void merge_arrays(int *sub_arr_a, int *sub_arr_b, int *sub_arr_c, int size_a, int size_b) {
     int array_index = 0, i = 0, j = 0;
       
     while (i < size_a && j < size_b)
@@ -208,98 +241,82 @@ static void merge_arrays(int *sub_arr_a, int *sub_arr_b, int *sub_arr_c, int siz
             sub_arr_c[array_index++] = sub_arr_a[i++];
 }
 
-/**
-  Traverses array to assert that it is sorted in ascending order.
-  Used to verify that the final array is sorted at the end of the algorithm. 
-  
-  @param array The array to be printed
-  @param array_size The length of the array
-*/
-int is_sorted(int *array, int size)
-{
-  int i = 0; 
-  for (; i < size - 1; i++)
-  {
-    if (array[i] > array[i + 1])
-        return 0;
-  }
-  return 1;
-}
 
-int main(int argc, char *argv[])
-{
+/***************  MAIN PROGRAM ***************/
+int main(int argc, char *argv[]) {
+  
+  // initialize required MPI variables
   MPI_Status status;
   MPI_Request request;
   
-  int *disp;
+  // initialize processor variables
   int process_rank;
   int num_processors;
  
+  // initialize the parallel process
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &process_rank);
   MPI_Comm_size(MPI_COMM_WORLD, &num_processors);
   
+  // error checking
+  // determins if the user inputed incorrect/indeterminate data
   if (argc < 2)
   {
       if (process_rank == FIRST)
         printf("ERROR: Missing array length exponent. Usage: ./a2 [array length exponent]\n");
-      
+      // MPI clean-up
       MPI_Finalize();
       return 0;
   }
   
+  // determine the array_size (dependent on user input)
   int array_size = pow(2, atoi(argv[1]));
+  // calloc space for the arrays to sort
   int *arr_a = calloc(array_size, sizeof(int));
   int *arr_b = calloc(array_size, sizeof(int));
   
-  // Initialize start/end time 
-  double start_time = 0.0;
-  double end_time = 0.0;
- 
+  // generates two random arrays based on user defined array_size
   gen_arrays(arr_a, arr_b, array_size);
   
-  // Wait for all processes to finish initialization
-  MPI_Barrier(MPI_COMM_WORLD);
-  // Initialize start time
-  start_time = MPI_Wtime();   
-  
+  // malloc space for the data structure to hold indicies and displacements of each array
   array_info *array_data = (array_info *)malloc(sizeof(array_info));
+  
+  // partition the data determine indicies and displacements of each array (returned in array_data)
   partition_data(array_size, arr_a, arr_b, num_processors, array_data);
   
+  // return the subarray lengths to each processor dependent on each processors rank
   int sub_arr_a_recv_count = array_data->subarray_a_lengths[process_rank];
   int sub_arr_b_recv_count = array_data->subarray_b_lengths[process_rank];
   
+  // malloc space for each subarrays data as required by each subarrays count as determined above
   int *sub_arr_a = (int *) malloc(sizeof(int) * sub_arr_a_recv_count);
   int *sub_arr_b = (int *) malloc(sizeof(int) * sub_arr_b_recv_count);
   
-  // Scatter arr_a across all procs
+  // scatter arr_a across all processors
   MPI_Scatterv(arr_a, array_data->subarray_a_lengths, array_data->subarray_a_indices, MPI_INT, sub_arr_a, sub_arr_a_recv_count, MPI_INT, FIRST, MPI_COMM_WORLD);
-  
-  // Scatter arr_b across all procs
+  // scatter arr_b across all processors
   MPI_Scatterv(arr_b, array_data->subarray_b_lengths, array_data->subarray_b_indices, MPI_INT, sub_arr_b, sub_arr_b_recv_count, MPI_INT, FIRST, MPI_COMM_WORLD);
   
-  // Merge sub_arr_a and sub_arr_b into sub_arr_c
+  // merge sub_arr_a and sub_arr_b into sub_arr_c
   int sub_arr_c_length = sub_arr_a_recv_count + sub_arr_b_recv_count;
   int *sub_arr_c = (int *)malloc(sizeof(int) * sub_arr_c_length);
   merge_arrays(sub_arr_a, sub_arr_b, sub_arr_c, sub_arr_a_recv_count, sub_arr_b_recv_count);
   
-  // Gather all sub_arr_c instances back to the root process
+  // malloc space for the indices and displacements for our newly generated subarray c
   int *arr_c = (int *)malloc(sizeof(int) * (array_size * 2));
-  
   int *sub_arr_c_recv_counts = (int *)malloc(sizeof(int) * num_processors);
   int *sub_arr_c_indices = (int *)malloc(sizeof(int) * num_processors);
-  
+  // populate the subarray indices and displacements based on each processors subarray a, subarray b, and processor rank
   for (int i = 0; i < num_processors; ++i)
   {
       sub_arr_c_recv_counts[i] = array_data->subarray_a_lengths[i] + array_data->subarray_b_lengths[i];
       sub_arr_c_indices[i] = array_data->subarray_a_indices[i] + array_data->subarray_b_indices[i];
   }
   
+  // gather all sub_arr_c instances back to the root process
   MPI_Gatherv(sub_arr_c, sub_arr_c_length, MPI_INT, arr_c, sub_arr_c_recv_counts, sub_arr_c_indices, MPI_INT, FIRST, MPI_COMM_WORLD);
   
-  // Initialize end time
-  end_time = MPI_Wtime();
-  
+  // root processor prints the two initial arrays as well as the final, parallely sorted array
   if (process_rank == FIRST)
   {
     printf("Array A: ");
@@ -310,11 +327,9 @@ int main(int argc, char *argv[])
     
     printf("Array C: ");
     print_array(arr_c, array_size * 2);
-    
-    printf("Wallclock time elapsed: %.9lf seconds\n", end_time - start_time);
-    printf("Is sorted: %d\n", is_sorted(arr_c, array_size));
   }
   
+  // free all space malloced/calloced for arrays and data structures
   free(sub_arr_c_recv_counts);
   free(sub_arr_c_indices);
   free(array_data->subarray_a_lengths);
@@ -329,6 +344,7 @@ int main(int argc, char *argv[])
   free(arr_b);
   free(arr_c);
   
+  // finalize the MPI process
   MPI_Finalize();
   return 0;
 }
