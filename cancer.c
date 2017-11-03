@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
   int *sub_arr_c_recv_counts = (int *)malloc(sizeof(int) * num_processors);
   int *sub_arr_c_indices = (int *)malloc(sizeof(int) * num_processors);
   
-  for (int i = 0; i < num_processes; ++i)
+  for (int i = 0; i < num_processors; ++i)
   {
       sub_arr_c_recv_counts[i] = array_data->subarray_a_lengths[i] + array_data->subarray_b_lengths[i];
       sub_arr_c_indices[i] = array_data->subarray_a_indices[i] + array_data->subarray_b_indices[i];
