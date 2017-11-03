@@ -116,7 +116,6 @@ static void print_array(const int array[], const int array_size)
 static void partition_data(const int array_size, int* arr_a, int* arr_b, int num_processors, array_info *data) 
 {
     int *arr_a_size, *arr_b_size, *arr_a_indices, *arr_b_indices;
-    printf("Length of displacements: %d\n", num_processors);
     arr_a_size = (int*)calloc(num_processors, sizeof(int));
     arr_b_size = (int*)calloc(num_processors, sizeof(int));
     arr_a_indices = (int*)calloc(num_processors, sizeof(int));
@@ -159,7 +158,6 @@ static void partition_data(const int array_size, int* arr_a, int* arr_b, int num
         index_of_key = arr_a_size[i] + arr_a_indices[i] - 1;
         key = arr_a[index_of_key];
         index = binary_search(arr_b, key, array_size);
-        printf("Index of last occurance of %d: %d\n", key, index);
         if (index > 0) {
             size = index + 1 - start;
             arr_b_indices[i] = start;
@@ -172,39 +170,6 @@ static void partition_data(const int array_size, int* arr_a, int* arr_b, int num
         }
         index = index + arr_a_size[i+1];
     }
-    
-    // TESTING
-    // display the sizes of the subarrays of array a
-    printf("Sizes of subarrays of a: ");
-    int n = num_processors;
-    for (int i = 0; i < n; i++) {
-      printf("%i ", arr_a_size[i]);
-    }
-    printf("\n");
-  
-    // TESTING
-    // display the starting indicies of the subarrays of array a
-    printf("Indicies of subarrays of a: ");
-    for (int i = 0; i < n; i++) {
-      printf("%i ", arr_a_indices[i]);
-    }
-    printf("\n");
-   
-    // TESTING
-    // display the sizes of the subarrays of array b
-    printf("Sizes of subarrays of b: ");
-    for (int i = 0; i < n; i++) {
-      printf("%i ", arr_b_size[i]);
-    }
-    printf("\n");
-  
-    // TESTING
-    // display the indicies of array b
-    printf("Indicies of subarrays of b: ");
-    for (int i = 0; i < n; i++) {
-      printf("%i ", arr_b_indices[i]);
-    }
-    printf("\n");
     
     // malloc memory for array_data struct
     size_t size_of_array = (sizeof *data->subarray_a_lengths) * num_processors;
