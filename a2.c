@@ -2,10 +2,10 @@
   a2.c
   MPI implementation of the parallel merging algorithm.
   Contributors:
-  -> Frank Khalil	  160226600
-  -> Sarah Johnston	150139570
-  -> Brad Katz		  130750210
-  -> Gareth Sharpe	090361370
+  -> Frank Khalil     160226600
+  -> Sarah Johnston   150139570
+  -> Brad Katz        130750210
+  -> Gareth Sharpe    090361370
 */
 
 // includes
