@@ -306,10 +306,10 @@ int main(int argc, char *argv[]) {
     printf("process: %d size: %d size %d\n", process_rank, array_data->subarray_a_lengths[3], array_data->subarray_a_indices[3]);
 
   } else {
-    array_data->subarray_a_lengths = (int*)malloc(num_processors, sizeof(int));
-    array_data->subarray_b_lengths = (int*)malloc(num_processors, sizeof(int));
-    array_data->subarray_a_indices = (int*)malloc(num_processors, sizeof(int));
-    array_data->subarray_b_indices = (int*)malloc(num_processors, sizeof(int));
+    array_data->subarray_a_lengths = (int*)malloc(num_processors);
+    array_data->subarray_b_lengths = (int*)malloc(num_processors);
+    array_data->subarray_a_indices = (int*)malloc(num_processors);
+    array_data->subarray_b_indices = (int*)malloc(num_processors);
   }
   // prevent data broadcast and manipulation until array_data has been calculated
   MPI_Barrier(MPI_COMM_WORLD);
