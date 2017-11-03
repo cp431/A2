@@ -238,6 +238,8 @@ int main(int argc, char *argv[])
   int *arr_a = calloc(array_size, sizeof(int));
   int *arr_b = calloc(array_size, sizeof(int));
   
+  gen_arrays(arr_a, arr_b, array_size);
+  
   array_info *array_data = (array_info *)malloc(sizeof(array_info));
   partition_data(array_size, arr_a, arr_b, num_processors, array_data);
   
