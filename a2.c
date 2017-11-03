@@ -309,10 +309,10 @@ int main(int argc, char *argv[]) {
   
   // prevent data broadcast and manipulation until array_data has been calculated
   MPI_Barrier(MPI_COMM_WORLD);
-  MPI_Bcast(&array_data->subarray_a_lengths, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
-  MPI_Bcast(&array_data->subarray_b_lengths, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
-  MPI_Bcast(&array_data->subarray_a_indices, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
-  MPI_Bcast(&array_data->subarray_b_indices, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
+  MPI_Bcast(array_data->subarray_a_lengths, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
+  MPI_Bcast(array_data->subarray_b_lengths, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
+  MPI_Bcast(array_data->subarray_a_indices, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
+  MPI_Bcast(array_data->subarray_b_indices, num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
   printf("send\n");
   printf("process: %d size: %d size %d", process_rank, array_data->subarray_a_lengths[0], array_data->subarray_a_indices[0]);
   printf("process: %d size of a: %d size of indices a: %d",process_rank,array_data->subarray_a_lengths[process_rank], array_data->subarray_a_indices[process_rank]); 
