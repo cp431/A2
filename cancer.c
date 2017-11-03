@@ -193,17 +193,17 @@ static void merge_arrays(int *sub_arr_a, int *sub_arr_b, int *sub_arr_c, int siz
     while (i < size_a && j < size_b)
     {
         if (sub_arr_a[i] < sub_arr_b[j])
-            array[array_index++] = sub_arr_a[i++];
+            sub_arr_c[array_index++] = sub_arr_a[i++];
         else
-            array[array_index++] = sub_arr_b[j++];
+            sub_arr_c[array_index++] = sub_arr_b[j++];
     }
     
     if (i == size_a)
         while (j < size_b)
-            array[array_index++] = sub_arr_b[j++];   
+            sub_arr_c[array_index++] = sub_arr_b[j++];   
     if (j == size_b)
       while (i < size_a)
-            array[array_index++] = sub_arr_a[i++];
+            sub_arr_c[array_index++] = sub_arr_a[i++];
 }
 
 int main(int argc, char *argv[])
@@ -263,13 +263,13 @@ int main(int argc, char *argv[])
   // Gather all sub_arr_c instances back to the root process
   int *arr_c = (int *)malloc(sizeof(int) * (array_size * 2));
   
-  int *sub_arr_c_recv_counts = (int *)malloc(sizeof(int) * (num_processes));
-  int *sub_arr_c_indices = (int *)malloc(sizeof(int) * num_processes);
+  int *sub_arr_c_recv_counts = (int *)malloc(sizeof(int) * num_processors);
+  int *sub_arr_c_indices = (int *)malloc(sizeof(int) * num_processors);
   
   for (int i = 0; i < num_processes; ++i)
   {
-      sub_arr_c_recv_counts[i] = array_data->sub_array_a_lengths[i] + array_data->sub_array_b_lengths[i];
-      sub_arr_c_indices[i] = array_data->sub_array_a_indices[i] + array_data->sub_array_b_indices[i];
+      sub_arr_c_recv_counts[i] = array_data->subarray_a_lengths[i] + array_data->subarray_b_lengths[i];
+      sub_arr_c_indices[i] = array_data->subarray_a_indices[i] + array_data->subarray_b_indices[i];
   }
   
   MPI_Gatherv(sub_arr_c, sub_arr_c_length, MPI_INT, arr_c, sub_arr_c_recv_counts, sub_arr_c_indices, MPI_INT, FIRST, MPI_COMM_WORLD);
