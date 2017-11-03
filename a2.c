@@ -18,6 +18,7 @@
 
 // constants
 #define FIRST 0
+#define RAND_STEP_SIZE 10
 
 // define a structure to hold subarray data
 typedef struct {
