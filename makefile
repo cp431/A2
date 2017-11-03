@@ -1,8 +1,8 @@
-a1:	a1.o
-	mpicc a1.o -o a1 -lgmp
+cancer:	cancer.o
+	mpicc cancer.o -o cancer
 
-a1.o:	a1.c
-	mpicc -c -std=c99 a1.c
+cancer.o: cancer.c
+	mpicc -c -std=c99 cancer.c
 
 clean: 
-	rm a1.o a1
+	rm cancer.o cancer
