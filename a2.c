@@ -355,14 +355,14 @@ int main(int argc, char *argv[]) {
   // root processor prints the two initial arrays as well as the final, parallely sorted array
   if (process_rank == FIRST)
   {
-    printf("Array A: ");
-    print_array(arr_a, array_size);
+    //printf("Array A: ");
+    //print_array(arr_a, array_size);
     
-    printf("Array B: ");
-    print_array(arr_b, array_size);
+    //printf("Array B: ");
+    //print_array(arr_b, array_size);
     
-    printf("Array C: ");
-    print_array(arr_c, array_size * 2);
+    //printf("Array C: ");
+    //print_array(arr_c, array_size * 2);
     
     printf("Wallclock time elapsed: %.9lf seconds\n", end_time - start_time);
     printf("Is sorted: %d\n", is_sorted(arr_c, array_size));
