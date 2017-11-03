@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
       return 0;
   }
   
-  int array_size = pow(atoi(argv[1]));
+  int array_size = pow(2, atoi(argv[1]));
   int *arr_a = calloc(array_size, sizeof(int));
   int *arr_b = calloc(array_size, sizeof(int));
   
