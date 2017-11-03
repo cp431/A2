@@ -312,9 +312,8 @@ int main(int argc, char *argv[]) {
   MPI_Bcast(&array_data->subarray_b_lengths[0], num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
   MPI_Bcast(&array_data->subarray_a_indices[0], num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
   MPI_Bcast(&array_data->subarray_b_indices[0], num_processors, MPI_INT, FIRST, MPI_COMM_WORLD);
-  printf("process: %d size: %d size %d\n", process_rank, array_data->subarray_a_lengths[0], array_data->subarray_a_indices[0]);
-  printf("process: %d size of a: %d size of indices a: %d\n",process_rank,array_data->subarray_a_lengths[process_rank], array_data->subarray_a_indices[process_rank]); 
-  printf("process: %d size of b: %d size of indices b: %d\n",process_rank,array_data->subarray_b_lengths[process_rank], array_data->subarray_b_indices[process_rank]); 
+  printf("process: %d size of a: %d indices a: %d\n",process_rank,array_data->subarray_a_lengths[process_rank], array_data->subarray_a_indices[process_rank]); 
+  printf("process: %d size of b: %d indices b: %d\n",process_rank,array_data->subarray_b_lengths[process_rank], array_data->subarray_b_indices[process_rank]); 
   // Initialize start time
   
   //start_time = MPI_Wtime(); 
